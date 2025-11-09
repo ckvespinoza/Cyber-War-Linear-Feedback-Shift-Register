@@ -1,0 +1,21 @@
+module lfsr10_xnor (rnd, reset, clk);
+    input  logic        clk;
+    input  logic        reset;     // asynchronous reset
+    output logic [9:0]  rnd;     	// 10‑bit random output
+
+	logic [9:0] state;
+
+	always_ff @(posedge clk or posedge reset) begin
+		if (reset) begin
+			state <= 10'b0000000001; // non‑all‑ones seed
+		end
+		else begin
+		// Tap bits: bit9 (Q10) and bit6 (Q7) → XNOR feedback per LFSR taps [XAPP 052 July 7, 1996 (Version 1.1), Peter Alfke, Xilinx Inc]
+		// Next state: shift left and new bit = ~(state[9] ^ state[6])
+		state <= { state[8:0], ~( state[9] ^ state[6] )};
+		end
+	end
+
+	assign rnd = state;
+
+endmodule
